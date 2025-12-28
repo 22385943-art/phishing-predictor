@@ -28,7 +28,7 @@ def get_db():
 
         print("Conexión con MongoDB exitosa")
 
-        return client['Flask_ONNX']
+        return client['DB_Phishing']
     
     except Exception as e:
 
