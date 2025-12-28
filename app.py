@@ -47,36 +47,36 @@ def connect_db():
     if db is None:
         db = get_db()
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def home():
     """
     Página principal
     Esencial: botones para dirigir al usuario a las otras rutas (abajo)
     """
-    return "TODO OK"
+    return render_template('home.html')
 
-@app.route('/history', methods=['GET'])
+@app.route('/history', methods=['GET', 'POST'])
 def history():
     """
     Página que enseña los datos historicos (todos lo que tenemos en la bd)
     """
     return None
 
-@app.route('/stats', methods=['GET'])
+@app.route('/stats', methods=['GET', 'POST'])
 def stats():
     """
     Enseña gráficas (debatir que gráficas mostrar y su diseño)
     """
     return None
 
-@app.route('/report', methods=['GET'])
+@app.route('/report', methods=['GET', 'POST'])
 def report():
     """
     Permite reportar una página a partir de su URL y también permite reportar una cuenta email
     """
     return None
 
-@app.route('/advising', methods=['GET'])
+@app.route('/advising', methods=['GET', 'POST'])
 def advising():
     """
     Contiene las FAQ en relación al phishing, también contiene links (o vídeos insertados) explicando dudas y
@@ -84,14 +84,14 @@ def advising():
     """
     return None
 
-@app.route('/predictions', methods=['GET'])
+@app.route('/predictions', methods=['GET', 'POST'])
 def predictions():
     """
     Predice si una URL, Imagen o texto son phishing o no. También devuelve un rango del riesgo
     """
     return None
 
-@app.route('/minigame', methods=['GET'])
+@app.route('/minigame', methods=['GET', 'POST'])
 def minigame():
     """
     Minijuego, el usuario tiene que adivinar si un mensaje o screenshot de una página es una scam o no
