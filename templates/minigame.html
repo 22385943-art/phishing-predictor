@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minijuego Anti-Phishing | PhishingPredictor</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f6f9;
+    color: #2c3e50;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ===== FONDO PARTICULAS ===== */
+canvas#bgCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+/* ===== HEADER ===== */
+header {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+header h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #1e3c72;
+}
+
+.back-home {
+    text-decoration: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 50px;
+    background: rgba(30,144,255,0.12);
+    color: #1e3c72;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-home i { margin-right: 0.4rem; }
+
+.back-home:hover {
+    background: #1e90ff;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.game-box {
+    background: rgba(255,255,255,0.96);
+    padding: 2.8rem 2.5rem;
+    border-radius: 26px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+    max-width: 820px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== TITULO JUEGO ===== */
+.game-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e3c72;
+    margin-bottom: 0.5rem;
+}
+
+.game-subtitle {
+    font-size: 1.05rem;
+    color: #5f6f81;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+/* ===== INDICADOR ===== */
+.status-badge {
+    display: inline-block;
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    background: rgba(30,144,255,0.1);
+    color: #1e3c72;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 1.8rem;
+}
+
+/* ===== IMAGEN ===== */
+.game-box img {
+    width: 100%;
+    max-width: 760px;
+    border-radius: 18px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+    margin-bottom: 2.2rem;
+    transition: transform 0.35s ease;
+}
+
+.game-box img:hover { transform: scale(1.025); }
+
+/* ===== BOTONES ===== */
+.response-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.6rem;
+}
+
+.response-buttons button {
+    flex: 1;
+    padding: 1.1rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.phishing {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+.phishing:hover { transform: translateY(-3px); }
+
+.nophishing {
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+}
+.nophishing:hover { transform: translateY(-3px); }
+
+/* ===== RESULTADO ===== */
+.result {
+    margin: 1.8rem auto 2.2rem;
+    padding: 1rem 1.8rem;
+    border-radius: 25px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.correct {
+    color: #1e8449;
+    background: rgba(39,174,96,0.15);
+}
+
+.incorrect {
+    color: #c0392b;
+    background: rgba(231,76,60,0.15);
+}
+
+/* ===== SIGUIENTE ===== */
+.next-btn {
+    padding: 0.9rem 3rem;
+    background: linear-gradient(135deg, #1e90ff, #00bfff);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.next-btn:hover {
+    transform: translateY(-3px);
+}
+
+/* ===== FOOTER ===== */
+footer {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+    color: #7a8a9a;
+    position: relative;
+    z-index: 2;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+    .response-buttons {
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<header>
+    <h1>PhishingPredictor</h1>
+    <a href="/" class="back-home">
+        <i class="fas fa-arrow-left"></i> Volver al Inicio
+    </a>
+</header>
+
+<div class="game-box">
+
+    <div class="game-title">¿Es phishing o no?</div>
+    <div class="game-subtitle">
+        Observa cuidadosamente la imagen y decide si se trata de un intento de phishing.
+        Este ejercicio mejora tu capacidad de detección en escenarios reales.
+    </div>
+
+    <div class="status-badge">
+        🔍 Analiza la imagen con atención
+    </div>
+
+    <!-- Imagen -->
+    <img src="{{ url_for('minigame_image', image_id=image_id) }}" alt="Imagen del minijuego">
+
+    <!-- Respuesta -->
+    <form method="POST">
+        <input type="hidden" name="image_id" value="{{ image_id }}">
+        <div class="response-buttons">
+            <button type="submit" name="answer" value="true" class="phishing">
+                🚨 Phishing
+            </button>
+            <button type="submit" name="answer" value="false" class="nophishing">
+                ✅ No Phishing
+            </button>
+        </div>
+    </form>
+
+    {% if result %}
+    <div class="result {% if result.correct %}correct{% else %}incorrect{% endif %}">
+        {% if result.correct %}
+            ✔ Respuesta correcta
+        {% else %}
+            ✖ Respuesta incorrecta · Era {% if result.correct_answer %}Phishing{% else %}No Phishing{% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <form method="GET">
+        <button class="next-btn">Siguiente Imagen</button>
+    </form>
+
+</div>
+
+<footer>
+    © 2025 PhishingPredictor · Entrenando usuarios contra el fraude digital
+</footer>
+
+<!-- ===== PARTICULAS ===== -->
+<script>
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+const particles = Array.from({ length: 90 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 6 + 3,
+    vx: (Math.random() - 0.5) * 1.4,
+    vy: (Math.random() - 0.5) * 1.4
+}));
+
+function animate() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(30,60,114,0.28)";
+        ctx.fill();
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

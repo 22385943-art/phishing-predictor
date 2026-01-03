@@ -1,15 +1,30 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 from dotenv import load_dotenv
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from bson.objectid import ObjectId
+import io
+from gridfs import GridFS
 import os
 from urllib.parse import urlparse, parse_qs, quote_plus
+import random
 
 load_dotenv()
 user = os.getenv("MONGO_USERNAME") #en el archivo .env poned vuestros datos de usuario
 pw = os.getenv("PASSWORD")
 
 app = Flask(__name__)
+
+
+
+@app.route("/minigame/image/<image_id>")
+def minigame_image(image_id):
+    fs = GridFS(db)
+    file = fs.get(ObjectId(image_id))
+    return send_file(
+        io.BytesIO(file.read()),
+        mimetype=file.contentType
+    )
 
 def get_db():
     """
@@ -82,33 +97,7 @@ def advising():
     Contiene las FAQ en relación al phishing, también contiene links (o vídeos insertados) explicando dudas y
     definiciones simples para ayudar a la persona a detectar posibles scams
     """
-    faqs = [
-        {
-            "question": "¿Qué es el phishing?",
-            "answer": "El phishing es un intento de engaño para robar información personal haciéndose pasar por una entidad legítima."
-        },
-        {
-            "question": "¿Cómo identificar un correo phishing?",
-            "answer": "Revisa el remitente, enlaces sospechosos, errores ortográficos y mensajes de urgencia."
-        },
-        {
-            "question": "¿Qué hago si he caído en un phishing?",
-            "answer": "Cambia tus contraseñas inmediatamente y contacta con tu banco o proveedor."
-        }
-    ]
-
-    videos = [
-        {
-            "title": "¿Qué es el phishing?",
-            "youtube_id": "Z34PbwQtGqk"
-        },
-        {
-            "title": "Cómo evitar ataques de phishing",
-            "youtube_id": "WsbbAxfQN2M"
-        }
-    ]
-
-    return render_template("advising.html", faqs=faqs, videos=videos)
+    return render_template("advising.html")
 
 
 @app.route('/predictions', methods=['GET', 'POST'])
@@ -123,7 +112,26 @@ def minigame():
     """
     Minijuego, el usuario tiene que adivinar si un mensaje o screenshot de una página es una scam o no
     """
-    return None
+    images = list(db["minigame"].find())
+    if not images:
+        return "No hay imágenes en la base de datos."
+
+    # Seleccionar aleatoriamente
+    image = random.choice(images)
+    image_id = str(image["_id"])
+    result = None
+
+    if request.method == "POST":
+        user_answer = request.form.get("answer")  # "true" o "false"
+        # Convertimos a booleano
+        user_answer_bool = True if user_answer == "true" else False
+ 
+        result = {
+            "correct": user_answer_bool == image["is_phishing"] ,
+            "correct_answer": image["is_phishing"] 
+        }
+
+    return render_template("minigame.html", image_id=image_id, result=result)
 
 if __name__ == "__main__":
     app.run(debug = True, host = "localhost", port  = 5000)
