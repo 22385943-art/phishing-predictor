@@ -19,7 +19,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== BACKGROUND ===== */
+/* ===== BACKGROUND PARTICULAS ===== */
 canvas#bgCanvas {
     position: fixed;
     inset: 0;
@@ -31,8 +31,8 @@ header {
     position: relative;
     z-index: 2;
     padding: 2rem 4rem;
-    background: rgba(255,255,255,0.92);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -40,28 +40,28 @@ header {
 
 header h1 {
     font-size: 2.4rem;
+    font-weight: 700;
     color: #1e3c72;
 }
 
-/* ===== BACK HOME BUTTON ===== */
-.back-home {
+/* ===== HOME BUTTON ===== */
+.home-btn {
     text-decoration: none;
-    padding: 0.6rem 1.4rem;
+    background: linear-gradient(135deg, #1e90ff, #00bfff);
+    color: #fff;
+    padding: 0.75rem 1.9rem;
     border-radius: 50px;
-    background: rgba(30,144,255,0.1);
-    color: #1e3c72;
     font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     transition: all 0.3s ease;
 }
 
-.back-home i {
-    margin-right: 0.4rem;
-}
-
-.back-home:hover {
-    background: #1e90ff;
-    color: #fff;
+.home-btn:hover {
     transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(30,144,255,0.35);
 }
 
 /* ===== INTRO ===== */
@@ -141,6 +141,12 @@ header h1 {
     padding: 2.2rem;
     border-radius: 22px;
     box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.faq-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 35px rgba(0,0,0,0.15);
 }
 
 .faq-card h4 {
@@ -148,10 +154,15 @@ header h1 {
     margin-bottom: 0.6rem;
 }
 
+.faq-card p {
+    color: #555;
+    font-size: 1rem;
+}
+
 .faq-card a {
     display: inline-block;
     margin-top: 0.8rem;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: #1e90ff;
     text-decoration: none;
 }
@@ -200,6 +211,13 @@ header h1 {
     box-shadow: 0 14px 35px rgba(0,0,0,0.12);
     display: flex;
     gap: 1.4rem;
+    align-items: flex-start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tip:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
 .tip-icon {
@@ -234,6 +252,8 @@ footer {
     text-align: center;
     padding: 2rem;
     background: rgba(255,255,255,0.9);
+    font-size: 0.95rem;
+    color: #555;
 }
 </style>
 </head>
@@ -244,233 +264,10 @@ footer {
 
 <header>
     <h1>PhishingPredictor</h1>
-    <a href="/" class="back-home">
-        <i class="fas fa-arrow-left"></i> Volver al Inicio
+    <a href="/" class="home-btn">
+        <i class="fas fa-home"></i> Volver al Inicio
     </a>
 </header>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PhishingPredictor | Centro de Ayuda</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
-    overflow-x: hidden;
-}
-
-/* ===== BACKGROUND ===== */
-canvas#bgCanvas {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-}
-
-/* ===== HEADER ===== */
-header {
-    position: relative;
-    z-index: 2;
-    padding: 2rem 4rem;
-    background: rgba(255,255,255,0.92);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-
-header h1 {
-    font-size: 2.4rem;
-    color: #1e3c72;
-}
-
-/* ===== INTRO ===== */
-.intro {
-    position: relative;
-    z-index: 2;
-    max-width: 1100px;
-    margin: 4rem auto;
-    padding: 0 3rem;
-    text-align: center;
-}
-
-.intro h2 {
-    font-size: 2.6rem;
-    color: #1e90ff;
-    margin-bottom: 1rem;
-}
-
-.intro p {
-    font-size: 1.1rem;
-    color: #555;
-    max-width: 780px;
-    margin: auto;
-}
-
-/* ===== NAV ===== */
-.nav-sections {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 5rem;
-    position: relative;
-    z-index: 2;
-}
-
-.nav-sections a {
-    padding: 0.8rem 1.8rem;
-    background: rgba(255,255,255,0.95);
-    border-radius: 50px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-    text-decoration: none;
-    color: #1e3c72;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.nav-sections a:hover {
-    background: #1e90ff;
-    color: #fff;
-    transform: translateY(-3px);
-}
-
-/* ===== SECTIONS ===== */
-.section {
-    position: relative;
-    z-index: 2;
-    max-width: 1200px;
-    margin: 0 auto 5rem;
-    padding: 0 3rem;
-}
-
-.section h3 {
-    font-size: 2rem;
-    color: #1e3c72;
-    margin-bottom: 2rem;
-}
-
-/* ===== FAQ ===== */
-.faq-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
-}
-
-.faq-card {
-    background: rgba(255,255,255,0.96);
-    padding: 2.2rem;
-    border-radius: 22px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-}
-
-.faq-card h4 {
-    color: #1e90ff;
-    margin-bottom: 0.6rem;
-}
-
-.faq-card a {
-    display: inline-block;
-    margin-top: 0.8rem;
-    font-size: 0.9rem;
-    color: #1e90ff;
-    text-decoration: none;
-}
-
-.faq-card a:hover {
-    text-decoration: underline;
-}
-
-/* ===== VIDEOS ===== */
-.video-scroll {
-    display: flex;
-    gap: 2rem;
-    overflow-x: auto;
-    padding-bottom: 1.5rem;
-}
-
-.video-scroll::-webkit-scrollbar { display: none; }
-.video-scroll { scrollbar-width: none; }
-
-.video-item {
-    flex: 0 0 360px;
-}
-
-@media (min-width: 1200px) {
-    .video-item {
-        flex: 1;
-    }
-}
-
-.video-item iframe {
-    width: 100%;
-    height: 220px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-
-/* ===== TIPS ===== */
-.tips-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 2rem;
-}
-
-.tip {
-    background: rgba(255,255,255,0.96);
-    padding: 2.4rem;
-    border-radius: 26px;
-    box-shadow: 0 14px 35px rgba(0,0,0,0.12);
-    display: flex;
-    gap: 1.4rem;
-    align-items: flex-start;
-}
-
-.tip-icon {
-    min-width: 56px;
-    height: 56px;
-    background: rgba(30,144,255,0.15);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.tip-icon i {
-    font-size: 1.6rem;
-    color: #1e90ff;
-}
-
-.tip-text h4 {
-    margin-bottom: 0.4rem;
-    color: #1e3c72;
-}
-
-.tip-text p {
-    font-size: 0.95rem;
-    color: #555;
-}
-
-/* ===== FOOTER ===== */
-footer {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    padding: 2rem;
-    background: rgba(255,255,255,0.9);
-}
-</style>
-</head>
-
-<body>
-
-<canvas id="bgCanvas"></canvas>
 
 <section class="intro">
     <h2>Centro de ayuda anti-phishing</h2>
@@ -535,12 +332,12 @@ footer {
                 allowfullscreen></iframe>
         </div>
         <div class="video-item">
-            <iframe src="https://www.youtube.com/embed/Y7zNlEMDmI4"
+            <iframe src="https://www.youtube.com/embed/mE7w2k_MkiU"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                 allowfullscreen></iframe>
         </div>
         <div class="video-item">
-            <iframe src="https://www.youtube.com/embed/UuuAlP7ay6U"
+            <iframe src="https://www.youtube.com/embed/JlQovysQBn0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                 allowfullscreen></iframe>
         </div>
@@ -639,6 +436,9 @@ animate();
 
 </body>
 </html>
+
+
+
 
 
 
