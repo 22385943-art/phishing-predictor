@@ -116,22 +116,31 @@ def minigame():
     if not images:
         return "No hay imágenes en la base de datos."
 
-    # Seleccionar aleatoriamente
-    image = random.choice(images)
-    image_id = str(image["_id"])
     result = None
 
     if request.method == "POST":
-        user_answer = request.form.get("answer")  # "true" o "false"
-        # Convertimos a booleano
+        # 🔹 USAR LA MISMA IMAGEN
+        image_id = request.form.get("image_id")
+        image = db["minigame"].find_one({"_id": ObjectId(image_id)})
+
+        user_answer = request.form.get("answer")
         user_answer_bool = True if user_answer == "true" else False
- 
+
         result = {
-            "correct": user_answer_bool == image["is_phishing"] ,
-            "correct_answer": image["is_phishing"] 
+            "correct": user_answer_bool == image["is_phishing"],
+            "correct_answer": image["is_phishing"]
         }
 
-    return render_template("minigame.html", image_id=image_id, result=result)
+    else:
+        # 🔹 SOLO EN GET elegimos nueva imagen
+        image = random.choice(images)
+        image_id = str(image["_id"])
+
+    return render_template(
+        "minigame.html",
+        image_id=image_id,
+        result=result
+    )
 
 if __name__ == "__main__":
     app.run(debug = True, host = "localhost", port  = 5000)
