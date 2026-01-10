@@ -151,9 +151,26 @@ def advising():
 @app.route('/predictions', methods=['GET', 'POST'])
 def predictions():
     """
-    Predice si una URL, Imagen o texto son phishing o no. También devuelve un rango del riesgo
+    Da las opciones de predecir por imagen (o URL de la imagen), texto o URL de página web dudosa
     """
     return None
+
+@app.route("/analizar_img", methods = ['GET', 'POST'])
+def analizar_img():
+    """
+    A partir de una imagen o URL a la imagen, Cohere detecta si es un mensaje. En caso de que lo sea
+    identifica si se trata de phishing o no y su porcentaje de phishing, por lo contrario envía un mensaje
+    al usuario explicando que la imagen no es válida para la predicción
+    """
+    img_url = request.form.get("img_url")
+    resultado = sacar_texto_img(img_url)
+
+    if resultado is None:
+        resultado = "Error al procesar la imagen."
+    else:
+        resultado = json.dumps(resultado, indent=4)
+
+    return render_template("prueba_cohere.html", resultado=resultado)
 
 @app.route("/minigame/image/<image_id>")
 def minigame_image(image_id):
@@ -196,17 +213,7 @@ def minigame():
         image_id=image_id,
         result=result
     )
-@app.route("/analizar", methods = ['GET', 'POST'])
-def analizar():
-    img_url = request.form.get("img_url")
-    resultado = sacar_texto_img(img_url)
 
-    if resultado is None:
-        resultado = "Error al procesar la imagen."
-    else:
-        resultado = json.dumps(resultado, indent=4)
-
-    return render_template("prueba_cohere.html", resultado=resultado)
 
 if __name__ == "__main__":
     app.run(debug = True, host = "localhost", port  = 5000)
