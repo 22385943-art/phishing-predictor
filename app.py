@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, redirect, url_for
 from dotenv import load_dotenv
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -8,14 +8,83 @@ from gridfs import GridFS
 import os
 from urllib.parse import urlparse, parse_qs, quote_plus
 import random
+import cohere
+import onnxruntime as ort
+import json
+import requests
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from datetime import datetime
+
 
 load_dotenv()
 user = os.getenv("MONGO_USERNAME") #en el archivo .env poned vuestros datos de usuario
 pw = os.getenv("PASSWORD")
+cohere_api_key = os.getenv("COHERE_API_KEY")
+
+co = cohere.ClientV2(api_key=cohere_api_key)
 
 app = Flask(__name__)
 
+def sacar_texto_img(img_url):
+    prompt = f"""
+    Eres un modelo de IA que analiza texto extraído de imágenes para detectar mensajes y posibles intentos de phishing.
+    Tareas:
+    1. Determinar si el contenido extraído de la imagen es un mensaje o no.
+    2. Si es un mensaje, determinar si es un intento de phishing.
+    3. Para phishing, devuelve también una estimación en porcentaje de la probabilidad de que sea phishing.
 
+    Instrucciones:
+    - Siempre devuelve un JSON válido.
+    - Claves del JSON:
+    - "es_mensaje": true/false
+    - "es_phishing": true/false/null (null si no es mensaje)
+    - "probabilidad_phishing": porcentaje de 0 a 100, null si no aplica
+    - No agregues explicaciones fuera del JSON.
+    - Sé conciso y directo.
+    - Texto a analizar proviene de la imagen subida o de la URL de la imagen.
+
+    Ejemplo de JSON esperado:
+    {
+    "es_mensaje": true,
+    "es_phishing": true,
+    "probabilidad_phishing": 85
+    }
+
+    Texto extraído de la imagen: "{texto_extraido_de_la_imagen}"
+
+    """
+    try: 
+        response = co.chat(
+            model="command-a-vision-07-2025",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                # Can be either a base64 data URI or a web URL.
+                                "url": img_url,
+                                "detail": "auto"
+                            }
+                        }
+                    ]
+                }
+            ]
+        )
+        return json.loads(response.message.content[0].text)
+    
+    except Exception as e:
+        # Si falla (URL inválida, error de Cohere, etc.), imprimimos el error en la consola
+        print(f"Error procesando imagen en Cohere: {e}")
+        # Devolvemos None para que la app sepa que falló, pero NO se rompa (Error 500)
+        return None, None, None
 
 @app.route("/minigame/image/<image_id>")
 def minigame_image(image_id):
