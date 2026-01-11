@@ -18,6 +18,7 @@ import pandas as pd
 from datetime import datetime
 
 
+
 load_dotenv()
 user = os.getenv("MONGO_USERNAME") #en el archivo .env poned vuestros datos de usuario
 pw = os.getenv("PASSWORD")
@@ -213,9 +214,27 @@ def stats():
 @app.route('/report', methods=['GET', 'POST'])
 def report():
     """
-    Permite reportar una página a partir de su URL y también permite reportar una cuenta email
+    Formulario que tiene que rellenar el usuario para poder reportar el intento de phishing.
+    Cada vez que el usuario envía algo tiene que subirse a la db
     """
-    return None
+    link_encontrado = None
+    collection_links = db["report_reliable_links"]
+    collection_antivirus = db["best antivirus"]
+    report_links = collection_links.find_one({}, {"_id": 0})
+
+    antivirus_list = list(collection_antivirus.find({}, {"_id": 0}))
+
+    if request.method == "POST":
+        tipo = request.form.get("tipo")
+        pais = request.form.get("pais", "Global")
+        link_encontrado = report_links.get(tipo, {}).get(pais, report_links.get(tipo, {}).get("Global"))
+
+    return render_template(
+        "report.html",
+        report_links=report_links,
+        link_encontrado=link_encontrado,
+        antivirus_list=antivirus_list
+    )
 
 @app.route('/advising', methods=['GET', 'POST'])
 def advising():

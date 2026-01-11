@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishingPredictor | Reportar Phishing</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body { font-family: 'Roboto', sans-serif; background: #f9f9f9; color: #333; margin:0; padding:0; }
+.container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+h1,h2,h3 { color: #1e3c72; }
+.section { background: #fff; padding: 2rem; margin-bottom: 2rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.link-list a { display: block; margin-bottom: 0.8rem; color: #1e90ff; text-decoration: none; font-weight: 500; }
+.link-list a:hover { text-decoration: underline; }
+form select, form input[type="text"], form input[type="submit"] { padding:0.6rem; margin-right:0.5rem; border-radius:8px; border:1px solid #ccc; }
+form input[type="submit"] { background: #1e90ff; color:#fff; border:none; cursor:pointer; }
+form input[type="submit"]:hover { background: #007acc; }
+.antivirus-item { margin-bottom: 1rem; }
+.antivirus-item a { font-weight: 500; color: #1e90ff; text-decoration:none; }
+.antivirus-item a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Reportar Phishing</h1>
+
+<!-- ===== LINKS OFICIALES ===== -->
+<div class="section">
+    <h2>Enlaces oficiales para reportar phishing</h2>
+    <div class="link-list">
+        {% for tipo, links in report_links.items() %}
+            <h3>{{ tipo }}</h3>
+            {% for nombre, url in links.items() %}
+                <a href="{{ url }}" target="_blank"><i class="fas fa-link"></i> {{ nombre }}</a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ===== FORMULARIO OPCIONAL ===== -->
+<div class="section">
+    <h2>Encuentra el mejor link para reportar</h2>
+    <form method="POST">
+        <select name="tipo">
+            <option value="URL">URL sospechosa</option>
+            <option value="Email">Email sospechoso</option>
+            <option value="SMS">SMS sospechoso</option>
+        </select>
+        <input type="text" name="pais" placeholder="País (opcional)">
+        <input type="submit" value="Buscar">
+    </form>
+
+    {% if link_encontrado %}
+        <p>El link recomendado para reportar: <a href="{{ link_encontrado }}" target="_blank">{{ link_encontrado }}</a></p>
+    {% endif %}
+</div>
+
+<!-- ===== MEJORES ANTIVIRUS ===== -->
+<div class="section">
+    <h2>Mejores software antivirus</h2>
+    {% for av in antivirus_list %}
+        <div class="antivirus-item">
+            <a href="{{ av.url }}" target="_blank">{{ av.nombre }}</a> - {{ av.descripcion }}
+        </div>
+    {% endfor %}
+</div>
+
+</div>
+</body>
+</html>
