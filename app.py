@@ -15,6 +15,7 @@ import requests
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import base64
 from datetime import datetime, timezone
 
 
@@ -372,6 +373,18 @@ def connect_db():
     if db is None:
         db = get_db()
 
+def fig_to_base64(fig):
+    """
+    Convierte una figura de Matplotlib en PNG (base64)
+    para poder incrustarla directamente en HTML.
+    """
+    buf = io.BytesIO()
+    fig.tight_layout()
+    fig.savefig(buf, format="png", dpi=150)
+    plt.close(fig)
+    buf.seek(0)
+    return base64.b64encode(buf.read()).decode("utf-8")        
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     """
@@ -413,12 +426,96 @@ def history():
         minigame=minigame
     )
 
-@app.route('/stats', methods=['GET', 'POST'])
+@app.route('/stats', methods=['GET'])
 def stats():
-    """
-    Enseña gráficas (debatir que gráficas mostrar y su diseño)
-    """
-    return None
+    # 1) Dataset del minijuego: phishing vs legítimo
+    images = list(db["minigame"].find({}, {"_id": 0, "is_phishing": 1}))
+    n_images = len(images)
+    n_phish = sum(1 for x in images if x.get("is_phishing") is True)
+    n_legit = n_images - n_phish
+
+    fig1 = plt.figure()
+    plt.bar(["Phishing", "Legítimo"], [n_phish, n_legit])
+    plt.title("Distribución de imágenes (minijuego)")
+    chart_dataset = fig_to_base64(fig1)
+
+    # 2) Intentos del minijuego (si existen)
+    attempts = list(db["minigame_attempts"].find({}, {"_id": 0, "ts": 1, "success": 1}))
+    minigame_summary = None
+    chart_minigame = None
+
+    if attempts:
+        dfA = pd.DataFrame(attempts)
+        dfA["ts"] = pd.to_datetime(dfA["ts"], errors="coerce")
+        dfA["date"] = dfA["ts"].dt.date
+        dfA["success"] = dfA["success"].astype(bool)
+
+        total_attempts = int(len(dfA))
+        accuracy_pct = float(dfA["success"].mean() * 100)
+
+        by_day = dfA.groupby("date")["success"].mean().reset_index()
+
+        fig2 = plt.figure()
+        plt.plot(by_day["date"].astype(str), by_day["success"] * 100, marker="o")
+        plt.xticks(rotation=45, ha="right")
+        plt.ylim(0, 100)
+        plt.title("Precisión del minijuego por día (%)")
+        plt.ylabel("% acierto")
+        chart_minigame = fig_to_base64(fig2)
+
+        minigame_summary = {
+            "total_attempts": total_attempts,
+            "accuracy_pct": round(accuracy_pct, 1)
+        }
+
+    # 3) Predicciones Cohere (si existen)
+    preds = list(db["cohere_predictions"].find({}, {"_id": 0, "result": 1}))
+    cohere_summary = None
+    chart_cohere = None
+
+    if preds:
+        rows = []
+        for p in preds:
+            r = p.get("result") or {}
+            rows.append({
+                "es_mensaje": r.get("es_mensaje"),
+                "es_phishing": r.get("es_phishing"),
+                "probabilidad_phishing": r.get("probabilidad_phishing")
+            })
+
+        dfP = pd.DataFrame(rows)
+        dfP["es_mensaje"] = dfP["es_mensaje"].astype("boolean")
+        dfP["probabilidad_phishing"] = pd.to_numeric(dfP["probabilidad_phishing"], errors="coerce")
+
+        total_preds = int(len(dfP))
+        mensajes = int(dfP["es_mensaje"].fillna(False).sum())
+        no_mensajes = total_preds - mensajes
+
+        df_msg = dfP[dfP["es_mensaje"] == True].copy()
+        phishing = int((df_msg["es_phishing"] == True).sum())
+        legit = int((df_msg["es_phishing"] == False).sum())
+
+        fig3 = plt.figure()
+        plt.bar(["No es mensaje", "Es mensaje"], [no_mensajes, mensajes])
+        plt.title("Cohere: ¿la imagen era un mensaje?")
+        chart_cohere = fig_to_base64(fig3)
+
+        cohere_summary = {
+            "total_preds": total_preds,
+            "mensajes": mensajes,
+            "no_mensajes": no_mensajes,
+            "phishing_en_mensajes": phishing,
+            "legit_en_mensajes": legit
+        }
+
+    return render_template(
+        "stats.html",
+        n_images=n_images, n_phish=n_phish, n_legit=n_legit,
+        chart_dataset=chart_dataset,
+        minigame_summary=minigame_summary, chart_minigame=chart_minigame,
+        cohere_summary=cohere_summary, chart_cohere=chart_cohere
+    )
+
 
 @app.route('/report', methods=['GET', 'POST'])
 def report():
@@ -561,12 +658,24 @@ def predictions():
                 )
 
 
+            # ✅ AQUÍ EXACTAMENTE: guardar predicción de archivo
+            try:
+                db["cohere_predictions"].insert_one({
+                    "ts": datetime.utcnow(),
+                    "source_type": "file",
+                    "source": img_file.filename,
+                    "result": res
+                })
+            except Exception as e:
+                print("Error guardando predicción Cohere (file):", e)
+
     return render_template(
         "predictions.html",
         resultado_url=resultado_url,
         resultado_img=resultado_img,
         resultado_texto=resultado_texto
     )
+
 @app.route("/minigame/image/<image_id>")
 def minigame_image(image_id):
     fs = GridFS(db)
@@ -595,6 +704,18 @@ def minigame():
             "correct": user_answer_bool == image["is_phishing"],
             "correct_answer": image["is_phishing"]
         }
+
+        from datetime import datetime
+        try:
+            db["minigame_attempts"].insert_one({
+                "ts": datetime.utcnow(),
+                "image_id": ObjectId(image_id),
+                "user_answer": bool(user_answer_bool),
+                "correct_answer": bool(image["is_phishing"]),
+                "success": bool(result["correct"])
+            })
+        except Exception as e:
+            print("Error guardando intento del minijuego:", e)
 
     else:
         image = random.choice(images)
