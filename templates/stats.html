@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estadísticas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Roboto', sans-serif; background: #f6f7fb; margin: 0; }
+    .topbar { background: #1e3c72; color: white; padding: 16px 20px; display:flex; justify-content:space-between; align-items:center; }
+    .topbar a { color: white; text-decoration: none; font-weight: 700; }
+    .container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .card { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+    .card h2 { margin: 0 0 10px; color: #1e3c72; font-size: 1.2rem; }
+    .kpis { display:flex; gap: 10px; flex-wrap:wrap; margin-bottom: 10px; }
+    .kpi { background:#eef3ff; border-radius: 10px; padding: 10px 12px; }
+    img { width: 100%; border-radius: 10px; }
+    .muted { color:#666; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><strong>Panel estadístico</strong></div>
+    <div><a href="/">Volver</a></div>
+  </div>
+
+  <div class="container">
+    <div class="grid">
+
+      <!-- Dataset del minijuego -->
+      <div class="card">
+        <h2>Dataset del minijuego</h2>
+        <div class="kpis">
+          <div class="kpi">Total imágenes: <strong>{{ n_images }}</strong></div>
+          <div class="kpi">Phishing: <strong>{{ n_phish }}</strong></div>
+          <div class="kpi">Legítimas: <strong>{{ n_legit }}</strong></div>
+        </div>
+        <img src="data:image/png;base64,{{ chart_dataset }}" alt="Distribución dataset"/>
+      </div>
+
+      <!-- Rendimiento del minijuego -->
+      <div class="card">
+        <h2>Rendimiento del minijuego</h2>
+        {% if minigame_summary %}
+          <div class="kpis">
+            <div class="kpi">Intentos: <strong>{{ minigame_summary.total_attempts }}</strong></div>
+            <div class="kpi">Acierto: <strong>{{ minigame_summary.accuracy_pct }}%</strong></div>
+          </div>
+          <img src="data:image/png;base64,{{ chart_minigame }}" alt="Precisión minijuego"/>
+        {% else %}
+          <p class="muted">
+            Aún no hay intentos registrados. Juega al minijuego para generar estadísticas.
+          </p>
+        {% endif %}
+      </div>
+
+      <!-- Cohere: resultados -->
+      <div class="card">
+        <h2>Cohere: resultados</h2>
+        {% if cohere_summary %}
+          <div class="kpis">
+            <div class="kpi">Predicciones: <strong>{{ cohere_summary.total_preds }}</strong></div>
+            <div class="kpi">Mensajes: <strong>{{ cohere_summary.mensajes }}</strong></div>
+            <div class="kpi">No mensajes: <strong>{{ cohere_summary.no_mensajes }}</strong></div>
+            <div class="kpi">Phishing (solo mensajes): <strong>{{ cohere_summary.phishing_en_mensajes }}</strong></div>
+            <div class="kpi">Legítimo (solo mensajes): <strong>{{ cohere_summary.legit_en_mensajes }}</strong></div>
+          </div>
+          <img src="data:image/png;base64,{{ chart_cohere }}" alt="Cohere: mensaje vs no mensaje"/>
+        {% else %}
+          <p class="muted">
+            Aún no hay predicciones guardadas. Usa el análisis con Cohere para generar datos.
+          </p>
+        {% endif %}
+      </div>
+
+      <!-- ⭐ Gráfica potente: probabilidad de phishing -->
+      <div class="card">
+        <h2>Probabilidad de phishing (Cohere)</h2>
+
+        {% if chart_prob %}
+          <p class="muted">
+            Distribución de la probabilidad de phishing estimada por Cohere
+            para imágenes que contienen mensajes.
+          </p>
+
+          <img
+            src="data:image/png;base64,{{ chart_prob }}"
+            alt="Distribución probabilidad phishing"
+          >
+        {% else %}
+          <p class="muted">
+            No hay suficientes datos para mostrar esta gráfica.
+            Analiza más imágenes para generar estadísticas.
+          </p>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
