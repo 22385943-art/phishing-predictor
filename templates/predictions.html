@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishingPredictor | Analizar Imagen</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== BACKGROUND PARTICULAS ===== */
+canvas#bgCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+/* ===== HEADER ===== */
+header {
+    position: relative;
+    z-index: 2;
+    padding: 2rem 4rem;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #1e3c72;
+}
+
+.home-btn {
+    text-decoration: none;
+    background: linear-gradient(135deg, #1e90ff, #00bfff);
+    color: #fff;
+    padding: 0.75rem 1.9rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.3s ease;
+}
+
+.home-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(30,144,255,0.35);
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 2.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* ===== ANALYSIS BOX ===== */
+.analysis-box {
+    background-color: rgba(255,255,255,0.97);
+    padding: 2.5rem 2rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 55px rgba(0,0,0,0.14);
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+}
+
+/* ===== CABECERA ===== */
+.analysis-header h2 {
+    font-size: 1.9rem;
+    color: #1e3c72;
+    margin-bottom: 0.5rem;
+}
+
+.analysis-header p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+/* ===== INPUTS ===== */
+.analysis-box input[type="text"],
+.analysis-box input[type="file"] {
+    width: 90%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    font-size: 1rem;
+}
+
+.analysis-box input[type="submit"] {
+    padding: 0.8rem 1.8rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #1e90ff, #00bfff);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.analysis-box input[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(30,144,255,0.35);
+}
+
+/* ===== RESULTADO ===== */
+.result {
+    margin-top: 1.5rem;
+    padding: 1.5rem 2rem;
+    border-radius: 20px;
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.result .key {
+    font-weight: 600;
+    color: #1e3c72;
+}
+
+.result .value {
+    font-weight: 500;
+    margin-left: 0.3rem;
+}
+
+.result.phishing {
+    border-left: 6px solid #e74c3c;
+    background-color: #ffe6e6;
+}
+
+.result.nophishing {
+    border-left: 6px solid #27ae60;
+    background-color: #e6fff2;
+}
+
+/* ===== EXPLICACION COHERE ===== */
+.explanation-box {
+    margin-top: 1.2rem;
+    padding: 1.2rem 1.4rem;
+    background: #f7f9fc;
+    border-radius: 14px;
+    border-left: 4px solid #1e90ff;
+}
+
+.explanation-box h4 {
+    font-size: 1.1rem;
+    color: #1e3c72;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.explanation-box p {
+    font-size: 0.95rem;
+    color: #444;
+    line-height: 1.55;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1000px) {
+    .main-content { flex-direction: column; align-items: center; gap: 2rem; }
+    .analysis-box { max-width: 90%; }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<header>
+    <h1>PhishingPredictor</h1>
+    <a href="/" class="home-btn"><i class="fas fa-home"></i> Volver al Inicio</a>
+</header>
+
+<div class="main-content">
+
+<!-- ===== ANALISIS POR URL ===== -->
+<div class="analysis-box">
+    <div class="analysis-header">
+        <h2>Analizar por URL</h2>
+        <p>Introduce la URL de la imagen para predecir phishing.</p>
+    </div>
+
+    <form method="POST" action="/predictions">
+        <input type="text" name="img_url" placeholder="https://ejemplo.com/imagen.png">
+        <br>
+        <input type="submit" value="Analizar">
+    </form>
+
+    {% if resultado_url %}
+        {% if resultado_url.error %}
+            <div class="result nophishing">{{ resultado_url.error }}</div>
+        {% else %}
+            <div class="result {% if resultado_url.es_phishing %}phishing{% else %}nophishing{% endif %}">
+                <div><span class="key">Es mensaje:</span><span class="value">{{ resultado_url.es_mensaje }}</span></div>
+
+                {% if resultado_url.es_mensaje %}
+                    <div><span class="key">Es phishing:</span><span class="value">{{ resultado_url.es_phishing }}</span></div>
+                    <div><span class="key">Probabilidad:</span><span class="value">{{ resultado_url.probabilidad_phishing }}%</span></div>
+
+                    {% if resultado_url.explicacion %}
+                    <div class="explanation-box">
+                        <h4><i class="fas fa-info-circle"></i> Explicación del análisis</h4>
+                        <p>{{ resultado_url.explicacion }}</p>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<!-- ===== ANALISIS POR IMAGEN ===== -->
+<div class="analysis-box">
+    <div class="analysis-header">
+        <h2>Analizar por Imagen</h2>
+        <p>Sube la imagen para predecir phishing.</p>
+    </div>
+
+    <form method="POST" action="/predictions" enctype="multipart/form-data">
+        <input type="file" name="img_file" accept="image/*">
+        <br>
+        <input type="submit" value="Analizar">
+    </form>
+
+    {% if resultado_img %}
+        {% if resultado_img.error %}
+            <div class="result nophishing">{{ resultado_img.error }}</div>
+        {% else %}
+            <div class="result {% if resultado_img.es_phishing %}phishing{% else %}nophishing{% endif %}">
+                <div><span class="key">Es mensaje:</span><span class="value">{{ resultado_img.es_mensaje }}</span></div>
+
+                {% if resultado_img.es_mensaje %}
+                    <div><span class="key">Es phishing:</span><span class="value">{{ resultado_img.es_phishing }}</span></div>
+                    <div><span class="key">Probabilidad:</span><span class="value">{{ resultado_img.probabilidad_phishing }}%</span></div>
+
+                    {% if resultado_img.explicacion %}
+                    <div class="explanation-box">
+                        <h4><i class="fas fa-info-circle"></i> Explicación del análisis</h4>
+                        <p>{{ resultado_img.explicacion }}</p>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+</div>
+
+<!-- ===== PARTICULAS ===== -->
+<script>
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles = [];
+const particleCount = 90;
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 6 + 3;
+        this.speedX = (Math.random() - 0.5) * 1.5;
+        this.speedY = (Math.random() - 0.5) * 1.5;
+        this.color = "rgba(30,144,255,0.22)";
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+}
+animate();
+
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
