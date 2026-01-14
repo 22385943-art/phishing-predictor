@@ -385,9 +385,33 @@ def history():
     """
     Página que enseña los datos historicos (todos lo que tenemos en la bd)
     """
+
+    predictions = list(
+        db["predictions_history"].find().sort("fecha", -1)
+    )
+
+    antivirus = list(
+        db["best antivirus"].find({}, {"_id": 0})
+    )
+
+    mapa = list(
+        db["mapa_phishing"].find({}, {"_id": 0})
+    )
+
+    minigame = list(
+        db["minigame"].find({}, {"_id": 0})
+    )
+
     collection = db["predictions_history"]
     datos = list(collection.find().sort("fecha", -1))
-    return render_template("history.html", datos=datos)
+
+    return render_template(
+        "history.html",
+        predictions_history=predictions,
+        best_antivirus=antivirus,
+        mapo_phishing=mapa,
+        minigame=minigame
+    )
 
 @app.route('/stats', methods=['GET', 'POST'])
 def stats():

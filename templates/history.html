@@ -5,8 +5,12 @@
     <title>Historial de Predicciones</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
         table {
             border-collapse: collapse;
@@ -97,15 +101,15 @@
     <title>Histórico de Pingüinos</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-color: #e3f2fd;
+            --bg-color: #1e90ff;
             --dark-blue: #1b3b6f;
             --table-header: #1b3b6f;
             --table-row-even: #f4faff;
-            --text-color: #37474f;
+            --text-color: #000000;
             --max-width: 1200px;
         }
 
@@ -131,7 +135,7 @@
         }
 
         .header-content {
-            width: 95%;
+            width: 100%;
             max-width: var(--max-width);
             display: flex;
             justify-content: space-between;
@@ -139,7 +143,7 @@
         }
 
         h1.header-title {
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Roboto', sans-serif;
             color: var(--dark-blue);
             font-size: 3.5rem;
             text-transform: uppercase;
@@ -155,8 +159,8 @@
         .nav-pill {
             background-color: var(--dark-blue); color: white;
             padding: 8px 25px; border-radius: 20px;
-            font-size: 0.9rem; font-weight: bold; font-family: 'Oswald', sans-serif;
-            text-transform: uppercase; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 0.9rem; font-weight: bold; font-family: 'Roboto', sans-serif;
+            text-transform: uppercase; box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
             letter-spacing: 1px; white-space: nowrap;
         }
 
@@ -167,8 +171,7 @@
 
         .magic-ball-img { width: 32px; height: 32px; margin-bottom: 8px; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); object-fit: contain; }
         .nav-icon-top { font-size: 1.8rem; color: var(--dark-blue); margin-bottom: 8px; }
-        .igloo-btn { color: var(--dark-blue); font-size: 2rem; margin-bottom: 5px; }
-        .rec-icon-container { display: flex; align-items: center; gap: 5px; color: var(--dark-blue); margin-bottom: 8px; font-weight: bold; font-family: 'Oswald', sans-serif; }
+        .rec-icon-container { display: flex; align-items: center; gap: 5px; color: var(--dark-blue); margin-bottom: 8px; font-weight: bold; font-family: 'Roboto', sans-serif; }
 
         .main-container {
             width: 95%;
@@ -180,7 +183,7 @@
         .table-container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             overflow: hidden;
             width: 100%;
         }
@@ -190,7 +193,7 @@
         th {
             background-color: var(--table-header);
             color: white;
-            font-family: 'Oswald', sans-serif;
+            font-family: 'Roboto', sans-serif;
             font-size: 1.1rem;
             padding: 20px;
             text-transform: uppercase;
@@ -260,45 +263,110 @@
                     <div class="nav-pill">ESTADÍSTICAS</div>
                 </a>
 
-                <a href="/apadrinar" class="nav-item">
+                <a href="/predictions" class="nav-item">
                     <i class="fas fa-heart nav-icon-top"></i>
-                    <div class="nav-pill">APADRINAR</div>
+                    <div class="nav-pill">PREDECIR</div>
                 </a>
             </div>
         </div>
     </header>
 
     <div class="main-container">
-        <div class="table-container">
+        <h2 class="section-title">Historial de Predicciones</h2>
+            <div class="card">
+            {% if predictions_history %}
             <table>
-                <thead>
-                    <tr>
-                        {% if history %}
-                            {% for key in history[0].keys() %}
-                                <th>{{ key.replace('_', ' ').upper() }}</th>
-                            {% endfor %}
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Input</th>
+                    <th>Resultado</th>
+                    <th>Probabilidad</th>
+                    <th>Explicación</th>
+                </tr>
+
+                {% for p in predictions_history %}
+                <tr>
+                    <td>{{ p.fecha.strftime("%Y-%m-%d %H:%M") }}</td>
+                    <td>{{ p.tipo }}</td>
+                    <td class="small-cell">{{ p.input }}</td>
+                    <td>
+                        {% if p.es_phishing %}
+                            <span class="phishing">PHISHING</span>
                         {% else %}
-                            <th>ESTADO</th>
+                            <span class="safe">SEGURO</span>
                         {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if history %}
-                        {% for record in history %}
-                        <tr>
-                            {% for value in record.values() %}
-                                <td>{{ value }}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="100%" style="padding: 40px;">No hay datos registrados todavía.</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
+                    </td>
+                    <td>{{ p.probabilidad }}%</td>
+                    <td class="small-cell">{{ p.explicacion }}</td>
+                </tr>
+                {% endfor %}
             </table>
-        </div>
+            {% else %}
+            <p>No hay predicciones registradas.</p>
+            {% endif %}
+            </div>
+        
+        <h2 class="section-title">Best Antivirus</h2>
+            <div class="card">
+            {% if best_antivirus %}
+            <table>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Puntuación</th>
+                </tr>
+
+                {% for a in best_antivirus %}
+                <tr>
+                    <td>{{ a.nombre }}</td>
+                    <td>{{ a.score }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            </div>
+
+        <h2 class="section-title">Mapa Phishing</h2>
+            <div class="card">
+            {% if mapo_phishing %}
+            <table>
+                <tr>
+                    <th>País</th>
+                    <th>Año</th>
+                    <th>Título</th>
+                    <th>Tipo</th>
+                </tr>
+
+                {% for m in mapo_phishing %}
+                <tr>
+                    <td>{{ m.pais }}</td>
+                    <td>{{ m.anio }}</td>
+                    <td class="small-cell">{{ m.titulo }}</td>
+                    <td>{{ m.tipo }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            </div>
+
+        <h2 class="section-title">Minigame</h2>
+            <div class="card">
+            {% if minigame %}
+            <table>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Es phishing</th>
+                </tr>
+
+                {% for g in minigame %}
+                <tr>
+                    <td>{{ g.filename if g.filename else "—" }}</td>
+                    <td>{{ "Sí" if g.is_phishing else "No" }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+            </div>
     </div>
 
     <footer>
