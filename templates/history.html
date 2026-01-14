@@ -1,377 +1,219 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Historial de Predicciones</title>
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            font-size: 14px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .phishing {
-            color: red;
-            font-weight: bold;
-        }
-        .safe {
-            color: green;
-            font-weight: bold;
-        }
-        .small {
-            max-width: 300px;
-            word-wrap: break-word;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishingPredictor | Historial de Datos</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:'Roboto',sans-serif;
+    background:#f9f9f9;
+    color:#333;
+}
+canvas#bgCanvas{
+    position:fixed;
+    inset:0;
+    z-index:0;
+}
+
+/* HEADER */
+header{
+    position:relative;
+    z-index:2;
+    padding:1.5rem 3rem;
+    background:rgba(255,255,255,.95);
+    box-shadow:0 4px 14px rgba(0,0,0,.08);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+header h1{font-size:2.2rem;color:#1e3c72}
+.home-btn{
+    text-decoration:none;
+    background:linear-gradient(135deg,#1e90ff,#00bfff);
+    color:#fff;
+    padding:.6rem 1.6rem;
+    border-radius:50px;
+    display:flex;
+    gap:.6rem;
+}
+
+/* CONTENIDO */
+.main-content{
+    position:relative;
+    z-index:2;
+    max-width:1200px;
+    margin:0 auto;
+    padding:2.5rem;
+}
+.section{
+    background:rgba(255,255,255,.97);
+    border-radius:22px;
+    box-shadow:0 18px 45px rgba(0,0,0,.14);
+    padding:2rem;
+    margin-bottom:2.5rem;
+}
+.section h2{
+    color:#1e3c72;
+    margin-bottom:1rem;
+}
+
+/* BADGES */
+.badge{
+    padding:.3rem .8rem;
+    border-radius:50px;
+    font-size:.8rem;
+    font-weight:600;
+}
+.phishing{background:rgba(231,76,60,.15);color:#c0392b}
+.safe{background:rgba(39,174,96,.15);color:#1e8449}
+
+/* DATATABLES */
+table.dataTable{width:100%!important;font-size:.9rem}
+.dataTables_wrapper{margin-top:1rem}
+</style>
 </head>
+
 <body>
 
-    <h1>Historial de predicciones</h1>
+<canvas id="bgCanvas"></canvas>
 
-    {% if datos and datos|length > 0 %}
+<header>
+    <h1>PhishingPredictor</h1>
+    <a href="/" class="home-btn"><i class="fas fa-home"></i> Inicio</a>
+</header>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Input</th>
-                <th>Resultado</th>
-                <th>Probabilidad (%)</th>
-                <th>Explicación</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for d in datos %}
-            <tr>
-                <td>
-                    {{ d.fecha.strftime("%Y-%m-%d %H:%M:%S") if d.fecha else "—" }}
-                </td>
-                <td>{{ d.tipo }}</td>
-                <td class="small">
-                    {{ d.input }}
-                </td>
-                <td>
-                    {% if d.es_phishing %}
-                        <span class="phishing">PHISHING</span>
-                    {% else %}
-                        <span class="safe">SEGURO</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {{ d.probabilidad if d.probabilidad is not none else "—" }}
-                </td>
-                <td class="small">
-                    {{ d.explicacion }}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="main-content">
 
-    {% else %}
-        <p>No hay predicciones guardadas todavía.</p>
-    {% endif %}
+<!-- ===== HISTORIAL ===== -->
+<div class="section">
+<h2>📊 Historial de predicciones</h2>
 
-    <p style="margin-top: 30px;">
-        <a href="{{ url_for('home') }}">← Volver al inicio</a>
-    </p>
+<table id="predictionsTable" class="display">
+<thead>
+<tr>
+    <th>Fecha</th>
+    <th>Tipo</th>
+    <th>Resultado</th>
+    <th>Probabilidad</th>
+    <th>Input</th>
+</tr>
+</thead>
+<tbody>
+{% for d in predictions %}
+<tr>
+    <td>{{ d.fecha.strftime("%Y-%m-%d %H:%M") }}</td>
+    <td>{{ d.tipo }}</td>
+    <td>
+        {% if d.es_phishing %}
+            <span class="badge phishing">Phishing</span>
+        {% else %}
+            <span class="badge safe">Seguro</span>
+        {% endif %}
+    </td>
+    <td>{{ d.probabilidad }}%</td>
+    <td>{{ d.input }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<!-- ===== MAPA ===== -->
+<div class="section">
+<h2>🌍 Casos reales documentados</h2>
+
+<table id="mapaTable" class="display">
+<thead>
+<tr>
+    <th>País</th>
+    <th>Tipo</th>
+    <th>Año</th>
+    <th>Título</th>
+</tr>
+</thead>
+<tbody>
+{% for m in mapa %}
+<tr>
+    <td>{{ m.pais }}</td>
+    <td>{{ m.tipo }}</td>
+    <td>{{ m.anio }}</td>
+    <td>{{ m.titulo }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<!-- ===== RECURSOS ===== -->
+<div class="section">
+<h2>🔗 Recursos fiables</h2>
+
+<table id="resourcesTable" class="display">
+<thead>
+<tr>
+    <th>Tipo</th>
+    <th>País</th>
+    <th>URL</th>
+</tr>
+</thead>
+<tbody>
+{% for r in reports %}
+<tr>
+    <td>{{ r.tipo }}</td>
+    <td>{{ r.pais }}</td>
+    <td><a href="{{ r.url }}" target="_blank">{{ r.url }}</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function(){
+    $('#predictionsTable').DataTable();
+    $('#mapaTable').DataTable();
+    $('#resourcesTable').DataTable();
+});
+</script>
+
+<!-- PARTICULAS -->
+<script>
+const c=document.getElementById("bgCanvas"),ctx=c.getContext("2d");
+c.width=innerWidth;c.height=innerHeight;
+let p=[];
+for(let i=0;i<90;i++)
+p.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*6+3,dx:(Math.random()-.5)*1.5,dy:(Math.random()-.5)*1.5});
+function a(){
+ctx.clearRect(0,0,c.width,c.height);
+p.forEach(e=>{
+e.x+=e.dx;e.y+=e.dy;
+if(e.x<0||e.x>c.width)e.dx*=-1;
+if(e.y<0||e.y>c.height)e.dy*=-1;
+ctx.beginPath();
+ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
+ctx.fillStyle="rgba(30,144,255,.22)";
+ctx.fill();
+});
+requestAnimationFrame(a);
+}
+a();
+addEventListener("resize",()=>{c.width=innerWidth;c.height=innerHeight});
+</script>
 
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Histórico de Pingüinos</title>
-    
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --bg-color: #1e90ff;
-            --dark-blue: #1b3b6f;
-            --table-header: #1b3b6f;
-            --table-row-even: #f4faff;
-            --text-color: #000000;
-            --max-width: 1200px;
-        }
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* --- HEADER --- */
-        header {
-            width: 100%; 
-            padding: 20px 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            box-sizing: border-box;
-        }
-
-        .header-content {
-            width: 100%;
-            max-width: var(--max-width);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        h1.header-title {
-            font-family: 'Roboto', sans-serif;
-            color: var(--dark-blue);
-            font-size: 3.5rem;
-            text-transform: uppercase;
-            margin: 0;
-            line-height: 1;
-            text-align: left;
-        }
-
-        .nav-buttons { display: flex; align-items: flex-end; gap: 30px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--dark-blue); cursor: pointer; transition: transform 0.2s; }
-        .nav-item:hover { transform: scale(1.05); }
-
-        .nav-pill {
-            background-color: var(--dark-blue); color: white;
-            padding: 8px 25px; border-radius: 20px;
-            font-size: 0.9rem; font-weight: bold; font-family: 'Roboto', sans-serif;
-            text-transform: uppercase; box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
-            letter-spacing: 1px; white-space: nowrap;
-        }
-
-        .nav-pill.active {
-            background-color: white; color: var(--dark-blue);
-            box-shadow: 0 0 10px rgba(255,255,255,0.5);
-        }
-
-        .magic-ball-img { width: 32px; height: 32px; margin-bottom: 8px; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); object-fit: contain; }
-        .nav-icon-top { font-size: 1.8rem; color: var(--dark-blue); margin-bottom: 8px; }
-        .rec-icon-container { display: flex; align-items: center; gap: 5px; color: var(--dark-blue); margin-bottom: 8px; font-weight: bold; font-family: 'Roboto', sans-serif; }
-
-        .main-container {
-            width: 95%;
-            max-width: var(--max-width);
-            margin-top: 20px;
-            margin-bottom: 50px;
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            overflow: hidden;
-            width: 100%;
-        }
-
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-
-        th {
-            background-color: var(--table-header);
-            color: white;
-            font-family: 'Roboto', sans-serif;
-            font-size: 1.1rem;
-            padding: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-right: 1px solid rgba(255,255,255,0.1);
-        }
-
-        td {
-            padding: 20px;
-            border-bottom: 1px solid #d0e1f0;
-            border-right: 1px solid #d0e1f0;
-            color: var(--text-color);
-            vertical-align: middle;
-            font-size: 1rem;
-        }
-
-        td:last-child, th:last-child { border-right: none; }
-        tr:nth-child(even) { background-color: var(--table-row-even); }
-        tr:hover { background-color: #a7a9ab; }
-
-        @media (max-width: 1100px) {
-            .header-content { flex-direction: column; gap: 20px; }
-            .nav-buttons { gap: 15px; flex-wrap: wrap; justify-content: center; }
-            h1.header-title { text-align: center; font-size: 3rem; margin-bottom: 10px; }
-            .table-container { overflow-x: auto; }
-            th, td { padding: 15px; white-space: nowrap; }
-        }
-
-        footer {
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-            background-color: var(--dark-blue);
-            color: white;
-            font-family: 'Roboto', sans-serif;
-            font-size: 0.9rem;
-            margin-top: auto; /* Esto empuja el footer al fondo si hay poco contenido */
-        }
-        footer a { color: #064a6a; text-decoration: none; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="header-content">
-            <h1 class="header-title">HISTÓRICO</h1>
-
-            <div class="nav-buttons">
-                <a href="/" class="nav-item">
-                    <i class="fas fa-igloo igloo-btn"></i>
-                </a>
-
-                <a href="/predict" class="nav-item"> 
-                    <img src="https://cdn-icons-png.flaticon.com/512/8331/8331106.png" class="magic-ball-img" alt="Bola Mágica">
-                    <div class="nav-pill">PREDECIR</div>
-                </a>
-                
-                <a href="/historico" class="nav-item">
-                    <div class="rec-icon-container">
-                        <i class="fas fa-circle" style="font-size: 0.8rem;"></i> REC
-                    </div>
-                    <div class="nav-pill active">HISTÓRICO</div>
-                </a>
-
-                <a href="/stats" class="nav-item">
-                    <i class="fas fa-chart-line nav-icon-top"></i>
-                    <div class="nav-pill">ESTADÍSTICAS</div>
-                </a>
-
-                <a href="/predictions" class="nav-item">
-                    <i class="fas fa-heart nav-icon-top"></i>
-                    <div class="nav-pill">PREDECIR</div>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <div class="main-container">
-        <h2 class="section-title">Historial de Predicciones</h2>
-            <div class="card">
-            {% if predictions_history %}
-            <table>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Input</th>
-                    <th>Resultado</th>
-                    <th>Probabilidad</th>
-                    <th>Explicación</th>
-                </tr>
-
-                {% for p in predictions_history %}
-                <tr>
-                    <td>{{ p.fecha.strftime("%Y-%m-%d %H:%M") }}</td>
-                    <td>{{ p.tipo }}</td>
-                    <td class="small-cell">{{ p.input }}</td>
-                    <td>
-                        {% if p.es_phishing %}
-                            <span class="phishing">PHISHING</span>
-                        {% else %}
-                            <span class="safe">SEGURO</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ p.probabilidad }}%</td>
-                    <td class="small-cell">{{ p.explicacion }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% else %}
-            <p>No hay predicciones registradas.</p>
-            {% endif %}
-            </div>
-        
-        <h2 class="section-title">Best Antivirus</h2>
-            <div class="card">
-            {% if best_antivirus %}
-            <table>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Puntuación</th>
-                </tr>
-
-                {% for a in best_antivirus %}
-                <tr>
-                    <td>{{ a.nombre }}</td>
-                    <td>{{ a.score }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% endif %}
-            </div>
-
-        <h2 class="section-title">Mapa Phishing</h2>
-            <div class="card">
-            {% if mapo_phishing %}
-            <table>
-                <tr>
-                    <th>País</th>
-                    <th>Año</th>
-                    <th>Título</th>
-                    <th>Tipo</th>
-                </tr>
-
-                {% for m in mapo_phishing %}
-                <tr>
-                    <td>{{ m.pais }}</td>
-                    <td>{{ m.anio }}</td>
-                    <td class="small-cell">{{ m.titulo }}</td>
-                    <td>{{ m.tipo }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% endif %}
-            </div>
-
-        <h2 class="section-title">Minigame</h2>
-            <div class="card">
-            {% if minigame %}
-            <table>
-                <tr>
-                    <th>Imagen</th>
-                    <th>Es phishing</th>
-                </tr>
-
-                {% for g in minigame %}
-                <tr>
-                    <td>{{ g.filename if g.filename else "—" }}</td>
-                    <td>{{ "Sí" if g.is_phishing else "No" }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            {% endif %}
-            </div>
-    </div>
-
-    <footer>
-        <p>© 2025 Proyecto Phising Predictor | Hecho con <i class="fas fa-heart"></i> y Python</p>
-    </footer>
-    
-</body>
-</html>

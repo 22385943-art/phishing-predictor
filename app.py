@@ -398,33 +398,46 @@ def history():
     """
     Página que enseña los datos historicos (todos lo que tenemos en la bd)
     """
+    col_predictions = db["predictions_history"]
+    col_mapa = db["mapa_phishing"]
+    col_reports = db["report_reliable_links"]
 
+    # --- Historial de predicciones ---
     predictions = list(
-        db["predictions_history"].find().sort("fecha", -1)
+        col_predictions
+        .find({}, {"_id": 0})
+        .sort("fecha", -1)
+        .limit(100)
     )
 
-    antivirus = list(
-        db["best antivirus"].find({}, {"_id": 0})
-    )
-
+    # --- Casos reales del mapa ---
     mapa = list(
-        db["mapa_phishing"].find({}, {"_id": 0})
+        col_mapa
+        .find({}, {"_id": 0})
+        .limit(50)
     )
 
-    minigame = list(
-        db["minigame"].find({}, {"_id": 0})
-    )
+    # --- Recursos fiables (DESNORMALIZADOS) ---
+    reports_raw = col_reports.find_one({}, {"_id": 0})
 
-    collection = db["predictions_history"]
-    datos = list(collection.find().sort("fecha", -1))
+    reports = []
+    if reports_raw:
+        for tipo, paises in reports_raw.items():
+            for pais, urls in paises.items():
+                for url in urls:
+                    reports.append({
+                        "tipo": tipo,
+                        "pais": pais,
+                        "url": url
+                    })
 
     return render_template(
         "history.html",
-        predictions_history=predictions,
-        best_antivirus=antivirus,
-        mapo_phishing=mapa,
-        minigame=minigame
+        predictions=predictions,
+        mapa=mapa,
+        reports=reports
     )
+
 
 @app.route('/stats', methods=['GET'])
 def stats():
