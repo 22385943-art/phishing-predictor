@@ -129,6 +129,31 @@ header h1{
   color:#555;
 }
 
+/* LEYENDA */
+.legend{
+  background:#fff;
+  padding:12px 14px;
+  border-radius:10px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+  font-size:0.9rem;
+  line-height:1.6;
+}
+.legend h4{
+  margin-bottom:6px;
+  font-size:0.95rem;
+  color:#1e3c72;
+}
+.legend-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.legend-color{
+  width:14px;
+  height:14px;
+  border-radius:50%;
+}
+
 /* FOOTER */
 footer{
   text-align:center;
@@ -192,6 +217,28 @@ function colorPorTipo(tipo){
   return "#e53935";
 }
 
+/* LEYENDA */
+const legend = L.control({ position: "bottomright" });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "legend");
+  div.innerHTML = `
+    <h4>Leyenda</h4>
+    <div class="legend-item">
+      <span class="legend-color" style="background:#2196f3"></span>Email
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background:#ff9800"></span>SMS
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background:#e53935"></span>URL
+    </div>
+  `;
+  return div;
+};
+
+legend.addTo(map);
+
 fetch("/api/mapa-phishing")
   .then(res => res.json())
   .then(data => {
@@ -223,5 +270,6 @@ fetch("/api/mapa-phishing")
 
 </body>
 </html>
+
 
 

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación PhishingPredictor</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- ESTILOS GENERALES (TEMA BLANCO/AZUL) --- */
+        body, .reveal { background-color: #f9f9f9; }
+
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4 { 
+            color: #1e3c72; 
+            text-transform: none; 
+            font-weight: bold; 
+        }
+        
+        .reveal p, .reveal li, .reveal small, .reveal span { 
+            color: #333;
+            line-height: 1.5; 
+        }
+        
+        .reveal .slides { font-size: 0.9em; }
+
+        .accent-blue { color: #1e90ff; }
+        .blue-bullet { color: #1e90ff; margin-right: 10px; font-size: 0.8em; }
+        
+        /* Cajas de diseño */
+        .team-box, .concept-box {
+            background: rgba(30, 144, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(30, 144, 255, 0.3);
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .team-box p { font-size: 0.9em; margin: 5px 0; }
+
+        /* Iconos de Solución */
+        .icon-row { 
+            display: flex; 
+            justify-content: center; 
+            gap: 40px; 
+            margin-top: 30px; 
+            flex-wrap: wrap; 
+        }
+        .icon-item { text-align: center; width: 150px; }
+        .icon-item i { color: #1e90ff; margin-bottom: 15px; }
+        .icon-item p { font-size: 0.9em; font-weight: 500; }
+        
+        /* Cajas de Concepto */
+        .concept-box { width: 40%; min-width: 280px; margin: 10px; }
+        .concept-box i { color: #1e3c72; margin-bottom: 15px; }
+        .plus-sign { font-size: 2em; color: #1e90ff; font-weight: bold; align-self: center; }
+
+        /* Botón Demo */
+        .demo-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #1e90ff, #00bfff);
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 10px 20px rgba(30, 144, 255, 0.3);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .demo-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(30, 144, 255, 0.4);
+        }
+        
+        .list-container { display: inline-block; text-align: left; max-width: 80%; }
+
+        /* --- ESTILOS DEL ROADMAP --- */
+        .timeline-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 15px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-item {
+            position: relative;
+            width: 190px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-top: 5px solid #ccc;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s;
+            min-height: 160px; /* Altura mínima para alinear cajas */
+        }
+
+        .timeline-item:hover { transform: translateY(-5px); }
+
+        .timeline-item.done {
+            border-top-color: #1e90ff;
+            background: linear-gradient(to bottom, rgba(30, 144, 255, 0.05), white);
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 0.9em;
+        }
+
+        .timeline-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+
+        .timeline-item.done .timeline-icon { color: #1e90ff; }
+        
+        .timeline-desc { font-size: 0.65em !important; line-height: 1.3 !important; margin-top: 8px; color: #555; }
+        .timeline-title { font-size: 0.9em !important; font-weight: bold !important; margin: 0; color: #1e90ff; }
+
+        .arrow-next {
+            align-self: center;
+            color: #1e90ff;
+            font-size: 1.5em;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 800px) { .arrow-next { display: none; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <section>
+                <i class="fas fa-shield-alt fa-4x accent-blue" style="margin-bottom: 20px;"></i>
+                <h1>PhishingPredictor</h1>
+                <h3>Tu guardespaldas digital contra el fraude</h3>
+                
+                <div class="team-box">
+                    <p><strong>Equipo de Desarrollo:</strong></p>
+                    <p>Javier Hernández · Kareem Barghouti</p>
+                    <p>Ashley Harris · Paco Perelló</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>¿Alguna vez has dudado?</h2>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p class="fragment" style="margin-bottom: 15px;">
+                        <i class="fas fa-envelope accent-blue"></i> 
+                        <em>"Su paquete de Amazon está retenido, pague tasas aquí..."</em>
+                    </p>
+                    <p class="fragment">
+                        <i class="fas fa-university accent-blue"></i> 
+                        <em>"Alerta de seguridad: Acceso no autorizado en su cuenta."</em>
+                    </p>
+                </div>
+                <br>
+                <p class="fragment" style="background-color: rgba(255, 99, 71, 0.1); padding: 15px; border-radius: 10px; color: #c0392b; width: 80%; margin: 0 auto;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    El problema es que los estafadores <strong>juegan con el miedo y la urgencia</strong>, y a veces los antivirus no son suficientes.
+                </p>
+            </section>
+
+            <section>
+                <h2>Nuestra Solución</h2>
+                <p>Una herramienta web sencilla donde puedes consultar cualquier duda antes de hacer clic.</p>
+                
+                <div class="icon-row">
+                    <div class="icon-item fragment fade-up">
+                        <i class="fas fa-globe fa-3x"></i>
+                        <p>Analiza Webs</p>
+                    </div>
+                    <div class="icon-item fragment fade-up">
+                        <i class="fas fa-comment-dots fa-3x"></i>
+                        <p>Analiza SMS</p>
+                    </div>
+                    <div class="icon-item fragment fade-up">
+                        <i class="fas fa-image fa-3x"></i>
+                        <p>Analiza Capturas</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>El Secreto: Dos Cerebros</h2>
+                <p>Combinamos dos tipos de inteligencia artificial para no fallar:</p>
+                
+                <div style="display: flex; justify-content: center; align-items: stretch; margin-top: 20px;">
+                    
+                    <div class="concept-box fragment fade-right">
+                        <i class="fas fa-user-secret fa-3x"></i>
+                        <h4>1. El Detective</h4>
+                        <p style="font-size: 0.8em;">(IA que lee)</p>
+                        <p style="font-size: 0.8em;">Lee el mensaje como un humano. Entiende el contexto y el engaño.</p>
+                    </div>
+
+                    <div class="fragment plus-sign">+</div>
+
+                    <div class="concept-box fragment fade-left">
+                        <i class="fas fa-calculator fa-3x"></i>
+                        <h4>2. El Matemático</h4>
+                        <p style="font-size: 0.8em;">(IA que calcula)</p>
+                        <p style="font-size: 0.8em;">Revisa 30 datos técnicos invisibles y calcula el riesgo exacto.</p>
+                    </div>
+
+                </div>
+            </section>
+
+            <section>
+                <h2>¿Por qué PhishingPredictor?</h2>
+                <div class="list-container" style="margin-top: 30px;">
+                    <p class="fragment"><i class="fas fa-chevron-right blue-bullet"></i> <strong>Te explica el "por qué":</strong> No solo dice "Peligro", te da una explicación clara en español.</p>
+                    <p class="fragment"><i class="fas fa-chevron-right blue-bullet"></i> <strong>A prueba de fallos:</strong> Si una URL confunde a la IA, el sistema no se rompe; te avisa con precaución.</p>
+                    <p class="fragment"><i class="fas fa-chevron-right blue-bullet"></i> <strong>Todo en uno:</strong> No necesitas tres apps diferentes.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Hoja de Ruta (Roadmap)</h2>
+                <p>Nuestra visión para el futuro del proyecto:</p>
+                
+                <div class="timeline-container">
+                    
+                    <div class="timeline-item done fragment fade-up">
+                        <span class="timeline-year">Fase 1 (Hoy)</span>
+                        <div class="timeline-icon"><i class="fas fa-check-circle"></i></div>
+                        <p class="timeline-title">MVP Web</p>
+                        <p class="timeline-desc">Validación IA Híbrida y despliegue funcional.</p>
+                    </div>
+
+                    <div class="arrow-next fragment">➔</div>
+
+                    <div class="timeline-item fragment fade-up">
+                        <span class="timeline-year">Fase 2</span>
+                        <div class="timeline-icon"><i class="fas fa-comments"></i></div>
+                        <p class="timeline-title">Plugin Universal</p>
+                        <p class="timeline-desc">Integración en WhatsApp, Slack y Telegram para análisis directo.</p>
+                    </div>
+
+                    <div class="arrow-next fragment">➔</div>
+
+                    <div class="timeline-item fragment fade-up">
+                        <span class="timeline-year">Fase 3</span>
+                        <div class="timeline-icon"><i class="fas fa-mobile-alt"></i></div>
+                        <p class="timeline-title">App Nativa</p>
+                        <p class="timeline-desc">Protección local de SMS y escáner QR.</p>
+                    </div>
+
+                    <div class="arrow-next fragment">➔</div>
+
+                    <div class="timeline-item fragment fade-up">
+                        <span class="timeline-year">Futuro</span>
+                        <div class="timeline-icon"><i class="fas fa-sync-alt"></i></div>
+                        <p class="timeline-title">Real-time Training</p>
+                        <p class="timeline-desc">El modelo se re-entrena solo con cada nuevo ataque detectado.</p>
+                    </div>
+
+                </div>
+            </section>
+
+            <section>
+                <h2>Conclusión</h2>
+                <p>Hemos creado una herramienta que democratiza la ciberseguridad.</p>
+                <div class="team-box" style="background: transparent; border: none; box-shadow: none;">
+                    <p style="font-size: 1.2em;">Usamos tecnología compleja por detrás <span class="accent-blue">(IA Híbrida)</span> para ofrecer una <strong>respuesta simple y rápida por delante</strong>.</p>
+                </div>
+                <br>
+                <h3 class="accent-blue">¡Gracias!</h3>
+                <small>Javier, Kareem, Ashley, Paco</small>
+            </section>
+
+             <section data-background-gradient="linear-gradient(to bottom right, #e6f2ff, #cce6ff)">
+                <h1>DEMOSTRACIÓN EN VIVO</h1>
+                <p>Es hora de verlo en acción. Vamos a probar una URL real.</p>
+                
+                <a href="http://localhost:5000" target="_blank" class="demo-btn">
+                    <i class="fas fa-rocket" style="margin-right: 10px;"></i> Iniciar la App
+                </a>
+                <p style="margin-top: 20px; font-size: 0.7em; color: #666;">(Asegúrate de que el servidor está corriendo)</p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            width: 1200,      // Ancho ajustado para ordenadores modernos
+            height: 900,      
+            margin: 0.1,      
+            minScale: 0.2,    
+            maxScale: 2.0,    
+            
+            hash: true,
+            transition: 'slide',
+            backgroundTransition: 'slide',
+            controls: true,
+            progress: true,
+            center: true
+        });
+    </script>
+</body>
+</html>
+
+
+
+
