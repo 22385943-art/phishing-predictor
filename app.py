@@ -770,9 +770,12 @@ def minigame():
         except Exception as e:
             print("Error guardando intento del minijuego:", e)
 
-    else:
-        image = random.choice(images)
-        image_id = str(image["_id"])
+    last_image_id = request.args.get("last")
+    if last_image_id:
+        images = [img for img in images if str(img["_id"]) != last_image_id]
+
+    image = random.choice(images)
+    image_id = str(image["_id"])
 
     return render_template(
         "minigame.html",
