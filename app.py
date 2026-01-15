@@ -403,7 +403,7 @@ def history():
         db["predictions_history"].find().sort("fecha", -1)
     )
 
-    antivirus = list(
+    reports = list(
         db["best antivirus"].find({}, {"_id": 0})
     )
 
@@ -415,14 +415,11 @@ def history():
         db["minigame"].find({}, {"_id": 0})
     )
 
-    collection = db["predictions_history"]
-    datos = list(collection.find().sort("fecha", -1))
-
     return render_template(
         "history.html",
-        predictions_history=predictions,
-        best_antivirus=antivirus,
-        mapo_phishing=mapa,
+        predictions=predictions,
+        mapa=mapa,
+        reports=reports,
         minigame=minigame
     )
 
